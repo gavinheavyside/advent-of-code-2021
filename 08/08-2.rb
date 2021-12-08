@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 
+require 'set'
+
 # lengths 2  3  4  5      6      7
 # numbers 1  7  4  2,3,5  0,6,9  8
-
-
-require 'set'
 
 def decode_segments(patterns)
   p1 = patterns[0]
@@ -12,44 +11,28 @@ def decode_segments(patterns)
   p4 = patterns[2]
   p8 = patterns[9]
 
-  mapping = {}
-  mapping['a'] = p7 - p1
-
   horizontals = patterns[3..5].reduce(:&)
-  mapping['e'] = patterns[3..5].select do |p|
-    (p - horizontals - p4).size == 1
-  end.flatten.first - horizontals - p4 
 
-  mapping['g'] = p8 - p7 - p4 - mapping['e']
+  p2 = patterns[3..5].find { |p| (p - horizontals - p4).size == 1 }
+  p3 = patterns[3..5].find { |p| (p - p7).size == 2 }
+  p5 = (patterns[3..5] - [p2,p3]).first
 
-  n3 = patterns[3..5].select{ |p| (p - p7).size == 2 }.flatten.first
-  mapping['d'] = n3 - p7 - mapping['g']
+  e_segment = p2 - horizontals - p4 
+  c_segment = p2 - horizontals - e_segment 
+  g_segment = p8 - p7 - p4 -  e_segment
+  d_segment = p3 - p7 - g_segment
 
-  n5 = patterns[3..5].select do |p|
-    (p - horizontals - p1 - mapping['e']).size == 1
-  end.flatten.first
-  mapping['b'] = n5 - horizontals - p1 - mapping['e']
-
-  n2 = patterns[3..5].select do |p|
-    (p - horizontals - mapping['e']).size == 1
-  end.flatten.first
-
-  mapping['c'] = n2 - horizontals - mapping['e']
-
-  mapping['f'] = p1 - mapping['c']
-
-  all = mapping.values.reduce(:+)
   {
-    '0' => (all - mapping['d']),
-    '1' => (mapping['c'] + mapping['f']),
-    '2' => (all - mapping['b'] - mapping['f']),
-    '3' => (all - mapping['b'] - mapping['e']),
-    '4' => (mapping['b'] + mapping['c'] + mapping['d'] + mapping['f']),
-    '5' => (all - mapping['c'] - mapping['e']),
-    '6' => (all - mapping['c']),
-    '7' => (mapping['c'] + mapping['f'] + mapping['a']),
-    '8' => all,
-    '9' => (all - mapping['e'])
+    '0' => p8 - d_segment,
+    '1' => p1,
+    '2' => p2,
+    '3' => p3,
+    '4' => p4,
+    '5' => p5,
+    '6' => p8 - c_segment,
+    '7' => p7,
+    '8' => p8,
+    '9' => p8 - e_segment
   }.invert
 end
 
