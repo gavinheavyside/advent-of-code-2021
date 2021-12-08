@@ -11,29 +11,26 @@ def decode_segments(patterns)
   p4 = patterns[2]
   p8 = patterns[9]
 
-  horizontals = patterns[3..5].reduce(:&)
-
-  p2 = patterns[3..5].find { |p| (p - horizontals - p4).size == 1 }
+  p2 = patterns[3..5].find { |p| (p - p4).size == 3 }
   p3 = patterns[3..5].find { |p| (p - p7).size == 2 }
-  p5 = (patterns[3..5] - [p2,p3]).first
+  p5 = patterns[3..5].find { |p| ![p2,p3].include? p }
+  p9 = p3 | p5
+  p6 = p8 - p9 + p5
 
-  e_segment = p2 - horizontals - p4 
-  c_segment = p2 - horizontals - e_segment 
-  g_segment = p8 - p7 - p4 -  e_segment
-  d_segment = p3 - p7 - g_segment
-
-  {
-    '0' => p8 - d_segment,
+  mapping = {
     '1' => p1,
     '2' => p2,
     '3' => p3,
     '4' => p4,
     '5' => p5,
-    '6' => p8 - c_segment,
+    '6' => p6,
     '7' => p7,
     '8' => p8,
-    '9' => p8 - e_segment
-  }.invert
+    '9' => p9
+  }
+  mapping['0'] = patterns.find { |p| !mapping.values.include? p }
+
+  mapping.invert
 end
 
 input = $stdin.readlines.map do |row|
