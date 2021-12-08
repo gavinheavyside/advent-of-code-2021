@@ -4,6 +4,8 @@
 # numbers 1  7  4  2,3,5  0,6,9  8
 
 
+require 'set'
+
 def decode_segments(patterns)
   p1 = patterns[0]
   p7 = patterns[1]
@@ -13,46 +15,49 @@ def decode_segments(patterns)
   mapping = {}
   mapping['a'] = p7 - p1
 
-  horizontals = patterns[3].intersection(patterns[4]).intersection(patterns[5])
-  mapping['e'] = patterns[3..5].map{ |i| i - horizontals - p4 }.flatten.compact
+  horizontals = patterns[3..5].reduce(:&)
+  mapping['e'] = patterns[3..5].select do |p|
+    (p - horizontals - p4).size == 1
+  end.flatten.first - horizontals - p4 
 
   mapping['g'] = p8 - p7 - p4 - mapping['e']
 
-  n3 = patterns[3..5].select{ |p| (p - p7).size == 2 }.flatten
+  n3 = patterns[3..5].select{ |p| (p - p7).size == 2 }.flatten.first
   mapping['d'] = n3 - p7 - mapping['g']
 
   n5 = patterns[3..5].select do |p|
     (p - horizontals - p1 - mapping['e']).size == 1
-  end.flatten
+  end.flatten.first
   mapping['b'] = n5 - horizontals - p1 - mapping['e']
 
   n2 = patterns[3..5].select do |p|
     (p - horizontals - mapping['e']).size == 1
-  end.flatten
+  end.flatten.first
+
   mapping['c'] = n2 - horizontals - mapping['e']
 
   mapping['f'] = p1 - mapping['c']
 
-  all = mapping.values.flatten
+  all = mapping.values.reduce(:+)
   {
-    '0' => (all - mapping['d']).sort,
-    '1' => (mapping['c'] + mapping['f']).sort,
-    '2' => (all - mapping['b'] - mapping['f']).sort,
-    '3' => (all - mapping['b'] - mapping['e']).sort,
-    '4' => (mapping['b'] + mapping['c'] + mapping['d'] + mapping['f']).sort,
-    '5' => (all - mapping['c'] - mapping['e']).sort,
-    '6' => (all - mapping['c']).sort,
-    '7' => (mapping['c'] + mapping['f'] + mapping['a']).sort,
-    '8' => all.sort,
-    '9' => (all - mapping['e']).sort
+    '0' => (all - mapping['d']),
+    '1' => (mapping['c'] + mapping['f']),
+    '2' => (all - mapping['b'] - mapping['f']),
+    '3' => (all - mapping['b'] - mapping['e']),
+    '4' => (mapping['b'] + mapping['c'] + mapping['d'] + mapping['f']),
+    '5' => (all - mapping['c'] - mapping['e']),
+    '6' => (all - mapping['c']),
+    '7' => (mapping['c'] + mapping['f'] + mapping['a']),
+    '8' => all,
+    '9' => (all - mapping['e'])
   }.invert
 end
 
 input = $stdin.readlines.map do |row|
   patterns, digits = row.chomp.split(' | ')
   {
-    patterns: patterns.split.map{ |p| p.chars.sort }.sort_by{ |p| p.size },
-    digits: digits.split.map{ |p| p.chars.sort }
+    patterns: patterns.split.map{ |p| Set.new(p.chars) }.sort_by{ |p| p.size },
+    digits: digits.split.map{ |p| Set.new(p.chars) }
   }
 end
 
