@@ -51,20 +51,11 @@ tick_flashes = 0
 total_flashes = 0
 
 while tick_flashes != (grid.size * grid.first.size) do
-#  puts grid.map{|r| r.map{|c| c[:value]}.join }
-#  puts total_flashes
   tick_flashes = tick(grid)
-#  puts tick_flashes
-#  puts
-  if tick_flashes == grid.size * grid.first.size
-    puts "All flashed on tick #{tick+1}"
-    break
-  end
   total_flashes += tick_flashes
   tick += 1
+  break if tick_flashes == grid.size * grid.first.size
 end
 
-#puts grid.map{|r| r.map{|c| c[:value]}.join }
-#puts
-
+puts "All flashed on tick #{tick}"
 puts total_flashes
