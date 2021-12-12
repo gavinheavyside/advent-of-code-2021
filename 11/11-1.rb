@@ -46,13 +46,22 @@ grid = $stdin.readlines.map do |r|
   r.chomp.chars.map{ |c| { flashed: false, value: c.to_i } }
 end
 
+tick = 0
+tick_flashes = 0
 total_flashes = 0
 
-100.times do
+while tick_flashes != (grid.size * grid.first.size) do
 #  puts grid.map{|r| r.map{|c| c[:value]}.join }
 #  puts total_flashes
+  tick_flashes = tick(grid)
+#  puts tick_flashes
 #  puts
-  total_flashes += tick(grid)
+  if tick_flashes == grid.size * grid.first.size
+    puts "All flashed on tick #{tick+1}"
+    break
+  end
+  total_flashes += tick_flashes
+  tick += 1
 end
 
 #puts grid.map{|r| r.map{|c| c[:value]}.join }
