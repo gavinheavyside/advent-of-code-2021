@@ -17,8 +17,11 @@ end
 puts graph.to_s
 
 def may_visit?(visited, v)
+  return false if v == 'start'
+  return true if v == 'end' || !visited.include?(v) || v =~ /[A-Z]+/
+
   counts = visited.tally
-  v != 'start' && (v == 'end' || v =~ /[A-Z]+/ || !visited.include?(v) || counts.values.all? { |v| v <= 1 })
+  counts.values.all? { |v| v <= 1 }
 end
 
 def explore_from(graph, root, paths, path, visited)
@@ -30,8 +33,7 @@ def explore_from(graph, root, paths, path, visited)
   visited << root if root =~ /[a-z]/
 
   graph.adjacent_vertices(root).each do |v|
-    can_i = may_visit?(visited, v)
-    explore_from(graph, v, paths, path.dup, visited.dup) if can_i
+    explore_from(graph, v, paths, path.dup, visited.dup) if may_visit?(visited, v)
   end
 end
 
