@@ -1,17 +1,12 @@
 #!/usr/bin/env ruby
 
 require 'rgl/adjacency'
-require 'rgl/path'
-require 'rgl/dijkstra'
 
-graph = RGL::DirectedAdjacencyGraph.new
+graph = RGL::AdjacencyGraph.new
 
 $stdin.readlines.each do |line|
   from, to = line.chomp.split('-')
   graph.add_edge(from, to)
-  if !(from == 'start' || to == 'end')
-    graph.add_edge(to, from)
-  end
 end
 
 puts graph.to_s
