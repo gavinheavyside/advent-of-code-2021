@@ -11,22 +11,25 @@ while line = gets
   end
 end
 
-counts = Hash.new(0)
-template.each_cons(2) { |a, b| counts[[a,b]] += 1 }
+pair_counts = template.each_cons(2).reduce(Hash.new(0)) do |memo, key|
+  memo[key] += 1
+  memo
+end
 
 40.times do
-  counts.dup.each do |key, count|
+  pair_counts.dup.each do |key, count|
     mid = rules[key]
-    counts[[key.first, mid]] += count
-    counts[[mid, key.last]] += count
-    counts[key] -= count
+    pair_counts[[key.first, mid]] += count
+    pair_counts[[mid, key.last]] += count
+    pair_counts[key] -= count
   end
 end
 
-single_counts = Hash.new(0)
-counts.each do |(a, b), value|
-  single_counts[b] += value
+single_counts = pair_counts.reduce(Hash.new(0)) do |memo, ((a,b), value)|
+  memo[b] += value
+  memo
 end
+
 single_counts[template.first] += 1
 
 puts single_counts.values.max - single_counts.values.min
