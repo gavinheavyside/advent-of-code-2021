@@ -4,26 +4,16 @@ require 'rgl/adjacency'
 require 'rgl/dijkstra'
 
 def bump_tile(tile)
-  tile.map do |row|
-    row.map { |entry| [(entry + 1) % 10, 1].max }
-  end
+  tile.map { |row| row.map { |entry| [(entry + 1) % 10, 1].max } }
 end
 
-tile = $stdin.readlines.map{|row| row.chomp.chars.map(&:to_i) }
+tile = $stdin.readlines.map{ |row| row.chomp.chars.map(&:to_i) }
 
-row = [tile]
-4.times do
-  row << bump_tile(row.last)
-end
+grid = [[tile]]
+4.times { grid.last << bump_tile(grid.last.last) }
+4.times { grid << grid.last.map { |tile| bump_tile(tile) } }
 
-grid = [row]
-4.times do
-  grid << grid.last.map { |tile| bump_tile(tile) }
-end
-
-input = grid.map do |row|
-  super_rows = row.reduce(&:zip).map(&:flatten)
-end.reduce(:+)
+input = grid.map { |row| row.reduce(&:zip).map(&:flatten) }.reduce(:+)
 
 graph = RGL::DirectedAdjacencyGraph.new
 edge_weights_map = Hash.new
