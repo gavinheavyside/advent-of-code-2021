@@ -50,7 +50,24 @@ def decode_packet(input)
       end
     end
 
-    [versions.reduce(:+), results.reduce(:+), input]
+    result = case type_id
+             when 0
+               results.sum
+             when 1
+               results.reduce(&:*)
+             when 2
+               results.min
+             when 3
+               results.max
+             when 5
+               results.reduce(&:>) ? 1 : 0
+             when 6
+               results.reduce(&:<) ? 1 : 0
+             when 7
+               results.reduce(&:==) ? 1 : 0
+             end
+
+    [versions.reduce(:+), result, input]
   end
 end
 
