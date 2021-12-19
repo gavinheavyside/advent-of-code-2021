@@ -1,12 +1,5 @@
 #!/usr/bin/env ruby
 
-def literal?(type_id)
-  type_id == 4
-end
-
-def decode_literal(input)
-end
-
 def decode_packet(input)
   # puts 
   # puts "decoding packet: #{input.join} length #{input.size}"
@@ -17,14 +10,13 @@ def decode_packet(input)
   # puts "version: #{version}"
   # puts "type_id: #{type_id}"
 
-  if literal? type_id
+  if type_id == 4 # literal
     message = []
     while input.shift == '1'
       message.append(*input.shift(4))
     end
     message.append(*input.shift(4))
 
-    # puts "literal: #{message.join.to_i(2)}"
     [version, message.join.to_i(2), input]
 
   else # operator
