@@ -32,10 +32,6 @@ def solve_init_x_for(min_x)
   ((1 + Math.sqrt(8 * min_x + 1)) / 2).floor
 end
 
-def solve_init_y_for(max_x, min_y)
-  ((min_y + (max_x * (max_x - 1) / 2)) / max_x).ceil
-end
-
 gets.chomp =~ /^target area: x=([-]?\d+)..([-]?\d+), y=([-]?\d+)..([-]?\d+)$/
 
 x1, x2, y1, y2 = (1..4).map { |i| Regexp.last_match(i).to_i }
@@ -46,9 +42,7 @@ min_init_x = solve_init_x_for(target[:min_x])
 max_init_x = target[:max_x] # if it overshoots on step 1, too far
 
 min_init_y = target[:min_y]
-max_init_y = solve_init_y_for(target[:max_x], target[:min_y])
-
-max_init_y *= 10 # ugly brute force because my clever limit didn't work :(
+max_init_y = min_init_y.abs
 
 puts [min_init_x, max_init_x, min_init_y, max_init_y].inspect
 
@@ -65,8 +59,8 @@ peaks = []
       position = { x: x_at_t(v0[:x], tick), y: y_at_t(v0[:y], tick) }
 
       peak = [peak, position[:y]].max
-      peaks << peak if on_target?(position, target)
     end
+    peaks << peak if on_target?(position, target)
   end
 end
 
